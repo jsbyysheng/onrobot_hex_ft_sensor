@@ -14,9 +14,8 @@ In a console, type:
  * mkdir src
  * cd src
  * catkin_init_workspace
+ * git clone https://github.com/OptoForce/etherdaq_ros.git
  * cd ..
- 
-uncompress the opto_ros_driver.tar.gz to home/opto_ws/src folder.
  * catkin_make
 
 After successful compiling, you will have two executable files and one library file.
