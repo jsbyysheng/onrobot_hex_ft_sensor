@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package>
+  <name>optoforce_etherdaq_driver</name>
+  <version>1.0.0</version>
+  <description>The optoforce_etherdaq_driver package</description>
+
+  <maintainer email="info@optoforce.com">OptoForce</maintainer>
+
+  <license>BSD</license>
+
+  <author email="info@optoforce.com">OptoForce</author>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>curl</build_depend>
+  <build_depend>diagnostic_msgs</build_depend>
+  <build_depend>diagnostic_updater</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>tinyxml</build_depend>
+  
+  <run_depend>curl</run_depend>
+  <run_depend>diagnostic_msgs</run_depend>
+  <run_depend>diagnostic_updater</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>tinyxml</run_depend>
+
+</package>
