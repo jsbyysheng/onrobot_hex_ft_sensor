@@ -9,14 +9,15 @@ Assuming you are in home directory, and you have root priviliges you should do t
 
 In a console, type:
 
- mkdir opto_ws
- cd opto_ws
- mkdir src
- cd src
- catkin_init_workspace
- cd ..
- uncompress the opto_ros_driver.tar.gz to home/opto_ws/src folder.
- catkin_make
+ * mkdir opto_ws
+ * cd opto_ws
+ * mkdir src
+ * cd src
+ * catkin_init_workspace
+ * cd ..
+ 
+uncompress the opto_ros_driver.tar.gz to home/opto_ws/src folder.
+ * catkin_make
 
 After successful compiling, you will have two executable files and one library file.
 
