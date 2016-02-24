@@ -5,7 +5,7 @@ To build the sources you should use catkin
 
 Compiling
 ---------
-Assuming you are in home directory, and you have root priviliges you should do the following steps
+Assuming you are in home directory, and you have root priviliges first you should do the following steps
 
 In a console, type:
 
@@ -21,7 +21,7 @@ In a console, type:
 After successful compiling, you will have two executable files and one library file.
 
 
-Using - Demo
+Usage - Demo
 ------------
 
 First, should check if the EtherDAQ is working by OptoForce Ethernet Discovery Tool. The tool will 
@@ -58,7 +58,7 @@ If the EtherDAQ does not repsonse, please double check the address in the demo.l
 
 
 
-Using - Real world
+Usage - Real world
 ------------------
 
 
