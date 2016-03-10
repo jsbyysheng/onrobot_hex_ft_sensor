@@ -4,11 +4,11 @@
   <version>1.0.0</version>
   <description>The optoforce_etherdaq_driver package</description>
 
-  <maintainer email="ros(.at..)optoforce(.dot..)com">OptoForce</maintainer>
+  <maintainer email="ros@optoforce.com">OptoForce</maintainer>
 
   <license>BSD</license>
 
-  <author email="ros(.at..)optoforce(.dot..)com">OptoForce</author>
+  <author email="ros@optoforce.com">OptoForce</author>
 
 
   <buildtool_depend>catkin</buildtool_depend>
