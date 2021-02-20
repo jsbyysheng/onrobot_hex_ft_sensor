@@ -62,7 +62,7 @@
 #define TORQUE_DIV	1.0
 #endif
 
-namespace optoforce_etherdaq_driver {
+namespace onrobot_hex_ft_sensor {
 
     class EtherDAQDriver {
     public:
@@ -144,6 +144,6 @@ namespace optoforce_etherdaq_driver {
     };
 
 
-} // end namespace optoforce_etherdaq_driver
+} // end namespace onrobot_hex_ft_sensor
 
 #endif // ETHERDAQ_DRIVER

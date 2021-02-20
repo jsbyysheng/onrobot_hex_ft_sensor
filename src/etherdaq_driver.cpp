@@ -38,7 +38,7 @@
 
 using boost::asio::ip::udp;
 
-namespace optoforce_etherdaq_driver {
+namespace onrobot_hex_ft_sensor {
 
     struct HSURecord {  // High-speed UDP record
         uint32_t hs_sequence_;
@@ -404,4 +404,4 @@ namespace optoforce_etherdaq_driver {
         diag_packet_count_ = packet_count_;
     }
 
-} // optoforce_etherdaq_driver
+} // onrobot_hex_ft_sensor

@@ -53,7 +53,7 @@ using namespace std;
 
 
 
-optoforce_etherdaq_driver::EtherDAQDriver * etherdaq = NULL;
+onrobot_hex_ft_sensor::EtherDAQDriver * etherdaq = NULL;
 
 void zeroFunction(const std_msgs::Bool &msg)
 {
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
         ROS_WARN("Publishing EthernetDAQ data as geometry_msgs::Wrench is deprecated");
     }
 
-    etherdaq = new optoforce_etherdaq_driver::EtherDAQDriver(address, pub_rate_hz, filter_hz);
+    etherdaq = new onrobot_hex_ft_sensor::EtherDAQDriver(address, pub_rate_hz, filter_hz);
 
     std::string topicName = "ethdaq_data";
 
