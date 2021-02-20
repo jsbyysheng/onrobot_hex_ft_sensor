@@ -10,8 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED COMPONENTS system thread program_options)
-find_package(CURL REQUIRED)
-find_package(TinyXML REQUIRED)
 
 
 catkin_package(
@@ -28,17 +26,14 @@ include_directories(
 add_library(etherdaq_driver src/etherdaq_driver.cpp)
 target_link_libraries(etherdaq_driver 
   ${catkin_LIBRARIES} 
-  ${Boost_LIBRARIES} 
-  ${CURL_LIBRARIES} 
-  ${TinyXML_LIBRARIES})
+  ${Boost_LIBRARIES}
+)
 
 ## Declare a cpp executable
 add_executable(etherdaq_node src/etherdaq_node.cpp)
-add_executable(etherdaq_subscriber src/etherdaq_subscriber.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(etherdaq_node etherdaq_driver)
-target_link_libraries(etherdaq_subscriber ${catkin_LIBRARIES})
 
 
 

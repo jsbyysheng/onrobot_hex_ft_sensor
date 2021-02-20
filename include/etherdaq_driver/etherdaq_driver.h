@@ -41,100 +41,109 @@
 #include <boost/thread/condition.hpp>
 #include <string>
 
-#include <curl/curl.h>
-#include <tinyxml.h>
 #include <boost/lexical_cast.hpp>
 
 #include "diagnostic_updater/DiagnosticStatusWrapper.h"
 #include "geometry_msgs/WrenchStamped.h"
 
-namespace optoforce_etherdaq_driver
-{
+#define ONROBOT_HEX_PORT	49152	/* Port the Ethernet DAQ always uses */
+#define SAMPLE_COUNT	    10		/* 10 incoming samples */
+#define BIASING_ON		    0xFF    /* Biasing on */
+#define BIASING_OFF		    0x00    /* Biasing off */
+#define ZERO_SAMPLE_COUNT   100     /* Count for Average Zero */
 
-class EtherDAQDriver
-{
-public:
-  // Start receiving data from EtherDAQ device
-  EtherDAQDriver(const std::string &address, unsigned int uSpeed = 100, unsigned int filter = 4);
+#define		UNIT  1 // 0 - Dimensionless  | 1 - Newton/Newton-meter
 
-  ~EtherDAQDriver();
+#if UNIT == 1
+#define		FORCE_DIV	10000.0  // Default divide value
+#define		TORQUE_DIV	100000.0 // Default divide value
+#else
+#define FORCE_DIV	1.0
+#define TORQUE_DIV	1.0
+#endif
 
-  //! Get newest data from EtherDAQ device
-  void getData(geometry_msgs::WrenchStamped &data);
+namespace optoforce_etherdaq_driver {
 
-  //! Add device diagnostics status wrapper
-  void diagnostics(diagnostic_updater::DiagnosticStatusWrapper &d);
+    class EtherDAQDriver {
+    public:
+        // Start receiving data from EtherDAQ device
+        EtherDAQDriver(const std::string &address, unsigned int uSpeed = 100, unsigned int filter = 4);
 
-  //! Wait for new EtherDAQ data to arrive.  
-  // Returns true if new data has arrived, false it function times out
-  bool waitForNewData(void);
-	
-  bool isRawData() const;	
-	
-  void doZero();	
-  void doUnzero();
-protected:
-  void recvThreadFunc(void);
+        ~EtherDAQDriver();
 
-  //! Asks EtherDAQ to start streaming data.
-  void startStreaming(void);
+        //! Get newest data from EtherDAQ device
+        void getData(geometry_msgs::WrenchStamped &data);
 
-  enum {DAQ_PORT=49152};
-  std::string address_;
+        //! Add device diagnostics status wrapper
+        void diagnostics(diagnostic_updater::DiagnosticStatusWrapper &d);
 
-  boost::asio::io_service io_service_;
-  boost::asio::ip::udp::socket socket_;
-  boost::mutex mutex_;
-  boost::thread recv_thread_;
-  boost::condition condition_;
-  volatile bool stop_recv_thread_;
-  //! True if recv loop is still running
-  bool recv_thread_running_;
-  //! Set if recv thread exited because of error
-  std::string recv_thread_error_msg_; 
+        //! Wait for new EtherDAQ data to arrive.
+        // Returns true if new data has arrived, false it function times out
+        bool waitForNewData();
 
-  //! Newest data received from netft device
-  geometry_msgs::WrenchStamped new_data_;
-  //! Count number of received <good> packets
-  unsigned packet_count_;
-  //! Count of lost packets using RDT sequence number
-  unsigned lost_packets_;
-  //! Counts number of out-of-order (or duplicate) received packets
-  unsigned out_of_order_count_;
-  //! Incremental counter for wrench header
-  unsigned seq_counter_;
-	
-  //! Speed of EthernetDAQ
-  unsigned int speed_;
-  unsigned int filter_;
+        void doZero();
 
-  //! Scaling factor for converting raw force values from device into Newtons
-  double force_scale_;
-  //! Scaling factor for converting raw torque values into Newton*meters
-  double torque_scale_;
+        void doUnzero();
 
-  //! Packet count last time diagnostics thread published output
-  unsigned diag_packet_count_;
-  //! Last time diagnostics was published
-  ros::Time last_diag_pub_time_;
-  
-  //! to keep track of out-of-order or duplicate packet
-  uint32_t last_hs_sequence_;
-  //! to keep track of any error codes reported by netft
-  uint32_t system_status_;
-  
-  // Units of force
-  uint32_t force_units_;
-  // Units of torque
-  uint32_t torque_units_;
-	
-	
-  geometry_msgs::WrenchStamped offset_data_;
-	
-};
+    protected:
+        void recvThreadFunc();
+
+        //! Asks EtherDAQ to start streaming data.
+        void startStreaming();
+        void stopStreaming();
+
+        enum {
+            DAQ_PORT = ONROBOT_HEX_PORT
+        };
+        std::string address_;
+
+        boost::asio::io_service io_service_;
+        boost::asio::ip::udp::socket socket_;
+        boost::mutex mutex_;
+        boost::thread recv_thread_;
+        boost::condition condition_;
+        volatile bool stop_recv_thread_;
+        volatile unsigned int update_offsetdata_;
+        //! True if recv loop is still running
+        bool recv_thread_running_;
+        //! Set if recv thread exited because of error
+        std::string recv_thread_error_msg_;
+
+        //! Newest data received from netft device
+        geometry_msgs::WrenchStamped new_data_;
+        //! Count number of received <good> packets
+        unsigned packet_count_;
+        //! Count of lost packets using RDT sequence number
+        unsigned lost_packets_;
+        //! Counts number of out-of-order (or duplicate) received packets
+        unsigned out_of_order_count_;
+        //! Incremental counter for wrench header
+        unsigned seq_counter_;
+
+        //! Speed of EthernetDAQ
+        unsigned int speed_;
+        unsigned int filter_;
+
+        //! Scaling factor for converting raw force values from device into Newtons
+        double force_scale_;
+        //! Scaling factor for converting raw torque values into Newton*meters
+        double torque_scale_;
+
+        //! Packet count last time diagnostics thread published output
+        unsigned diag_packet_count_;
+        //! Last time diagnostics was published
+        ros::Time last_diag_pub_time_;
+
+        //! to keep track of out-of-order or duplicate packet
+        uint32_t last_hs_sequence_;
+        //! to keep track of any error codes reported by netft
+        uint32_t system_status_;
+
+        geometry_msgs::WrenchStamped offset_data_;
+
+    };
 
 
 } // end namespace optoforce_etherdaq_driver
-
 
 #endif // ETHERDAQ_DRIVER

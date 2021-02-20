@@ -32,7 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************/
 
-/** 
+/**
  * Simple stand-alone ROS node that takes data from EtherDAQ sensor and
  * Publishes it ROS topic
  */
@@ -57,138 +57,133 @@ optoforce_etherdaq_driver::EtherDAQDriver * etherdaq = NULL;
 
 void zeroFunction(const std_msgs::Bool &msg)
 {
-	if (etherdaq == NULL) {
-		return;
-	}
-	bool zeroing = msg.data;
-	if (zeroing) {
-		etherdaq->doZero();
-		return;
-	}
-	etherdaq->doUnzero();
+    if (etherdaq == NULL) {
+        return;
+    }
+    bool zeroing = msg.data;
+    if (zeroing) {
+        etherdaq->doZero();
+        return;
+    }
+    etherdaq->doUnzero();
 }
 
 
 int main(int argc, char **argv)
-{ 
-  ros::init(argc, argv, "etherdaq_node");
-  ros::NodeHandle nh;
+{
+    ros::init(argc, argv, "etherdaq_node");
+    ros::NodeHandle nh;
 
-  float pub_rate_hz;
-  int filter_hz; 
-  string address;
-  string frame_id;
+    float pub_rate_hz;
+    int filter_hz;
+    string address;
+    string frame_id;
 
-  po::options_description desc("Options");
-  desc.add_options()
-    ("help", "display help")
-    ("rate", po::value<float>(&pub_rate_hz)->default_value(100.0), "set publish rate and Ethernet DAQ speed (in hertz)")
-	("filter", po::value<int>(&filter_hz)->default_value(4), "set filtering (0 = No filter; 1 = 500 Hz; 2 = 150 Hz; 3 = 50 Hz; 4 = 15 Hz; 5 = 5 Hz; 6 = 1.5 Hz)") 
-    ("wrench", "publish older Wrench message type instead of WrenchStamped")
-    ("address", po::value<string>(&address), "IP address of EthernetDAQ box")
-    ("frame_id", po::value<string>(&frame_id)->default_value("base_link"), "Frame ID for Wrench data")  
-    ;
-     
-  po::positional_options_description p;
-  p.add("address",  1);
+    po::options_description desc("Options");
+    desc.add_options()
+            ("help", "display help")
+            ("rate", po::value<float>(&pub_rate_hz)->default_value(100.0), "set publish rate and Ethernet DAQ speed (in hertz)")
+            ("filter", po::value<int>(&filter_hz)->default_value(4), "set filtering (0 = No filter; 1 = 500 Hz; 2 = 150 Hz; 3 = 50 Hz; 4 = 15 Hz; 5 = 5 Hz; 6 = 1.5 Hz)")
+            ("wrench", "publish older Wrench message type instead of WrenchStamped")
+            ("address", po::value<string>(&address), "IP address of EthernetDAQ box")
+            ("frame_id", po::value<string>(&frame_id)->default_value("base_link"), "Frame ID for Wrench data")
+            ;
 
-  po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
-  po::notify(vm);
+    po::positional_options_description p;
+    p.add("address",  1);
 
-  if (vm.count("help"))
-  {
-    cout << desc << endl;
-    exit(EXIT_SUCCESS);
-  }      
+    po::variables_map vm;
+    po::store(po::command_line_parser(argc, argv).options(desc).positional(p).run(), vm);
+    po::notify(vm);
 
-  if (!vm.count("address"))
-  {
-    cout << desc << endl;
-    cerr << "Please specify address of EthernetDAQ" << endl;
-    exit(EXIT_FAILURE);
-  }
-	
-  if (filter_hz < 0 || filter_hz > 6) {
-	  cout << desc << endl;
-	  cerr<<"Please specify a valid filtering value instead of "<<filter_hz<<endl;
-	  exit(EXIT_FAILURE);
-  }
-
-  bool publish_wrench = false;
-  if (vm.count("wrench"))
-  {
-    publish_wrench = true;
-    ROS_WARN("Publishing EthernetDAQ data as geometry_msgs::Wrench is deprecated");
-  }
-
-  etherdaq = new optoforce_etherdaq_driver::EtherDAQDriver(address, pub_rate_hz, filter_hz);
-	
-  bool isRawData = etherdaq->isRawData();
-
-  std::string topicName = "ethdaq_data";	
-  if (isRawData) {
-	  topicName += "_raw";
-  }
-	
-  ros::Publisher pub;
-  ros::Subscriber sub = nh.subscribe("ethdaq_zero", 1000, zeroFunction);
-  if (publish_wrench)
-  {
-    pub = nh.advertise<geometry_msgs::Wrench>(topicName, 100);
-  }
-  else 
-  {
-    pub = nh.advertise<geometry_msgs::WrenchStamped>(topicName, 100);
-  }
-  ros::Rate pub_rate(pub_rate_hz);
-  geometry_msgs::WrenchStamped data;
-
-  ros::Duration diag_pub_duration(1.0);
-  ros::Publisher diag_pub = nh.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics", 2);
-  diagnostic_msgs::DiagnosticArray diag_array;
-  diag_array.status.reserve(1);
-  diagnostic_updater::DiagnosticStatusWrapper diag_status;
-  ros::Time last_diag_pub_time(ros::Time::now());
-
-  unsigned int packetCount = 0; 
-  ros::Time startTime(ros::Time::now());	
-  while (ros::ok())
-  {
-    if (etherdaq->waitForNewData())
+    if (vm.count("help"))
     {
-      etherdaq->getData(data);
-      packetCount++; 
-      if (publish_wrench) 
-      {
-	data.header.frame_id = frame_id;
-        pub.publish(data.wrench);
-      }
-      else 
-      {
-   	data.header.frame_id = frame_id;
-        pub.publish(data);
-      }
-    }
-    
-    ros::Time current_time(ros::Time::now());
-    if ( (current_time - last_diag_pub_time) > diag_pub_duration )
-    {
-      diag_array.status.clear();
-      etherdaq->diagnostics(diag_status);
-      diag_array.status.push_back(diag_status);
-      diag_array.header.stamp = ros::Time::now();
-      diag_pub.publish(diag_array);
-      last_diag_pub_time = current_time;
+        cout << desc << endl;
+        exit(EXIT_SUCCESS);
     }
 
-    ros::spinOnce();
-    pub_rate.sleep();
-  }
-	
-  if (etherdaq != NULL) {
-	  delete etherdaq;
-  }
-  
-  return 0;
+    if (!vm.count("address"))
+    {
+        cout << desc << endl;
+        cerr << "Please specify address of EthernetDAQ" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (filter_hz < 0 || filter_hz > 6) {
+        cout << desc << endl;
+        cerr<<"Please specify a valid filtering value instead of "<<filter_hz<<endl;
+        exit(EXIT_FAILURE);
+    }
+
+    bool publish_wrench = false;
+    if (vm.count("wrench"))
+    {
+        publish_wrench = true;
+        ROS_WARN("Publishing EthernetDAQ data as geometry_msgs::Wrench is deprecated");
+    }
+
+    etherdaq = new optoforce_etherdaq_driver::EtherDAQDriver(address, pub_rate_hz, filter_hz);
+
+    std::string topicName = "ethdaq_data";
+
+    ros::Publisher pub;
+    ros::Subscriber sub = nh.subscribe("ethdaq_zero", 1000, zeroFunction);
+    if (publish_wrench)
+    {
+        pub = nh.advertise<geometry_msgs::Wrench>(topicName, 100);
+    }
+    else
+    {
+        pub = nh.advertise<geometry_msgs::WrenchStamped>(topicName, 100);
+    }
+    ros::Rate pub_rate(pub_rate_hz);
+    geometry_msgs::WrenchStamped data;
+
+    ros::Duration diag_pub_duration(1.0);
+    ros::Publisher diag_pub = nh.advertise<diagnostic_msgs::DiagnosticArray>("/diagnostics", 2);
+    diagnostic_msgs::DiagnosticArray diag_array;
+    diag_array.status.reserve(1);
+    diagnostic_updater::DiagnosticStatusWrapper diag_status;
+    ros::Time last_diag_pub_time(ros::Time::now());
+
+    unsigned int packetCount = 0;
+    ros::Time startTime(ros::Time::now());
+    while (ros::ok())
+    {
+        if (etherdaq->waitForNewData())
+        {
+            etherdaq->getData(data);
+            packetCount++;
+            if (publish_wrench)
+            {
+                data.header.frame_id = frame_id;
+                pub.publish(data.wrench);
+            }
+            else
+            {
+                data.header.frame_id = frame_id;
+                pub.publish(data);
+            }
+        }
+
+        ros::Time current_time(ros::Time::now());
+        if ( (current_time - last_diag_pub_time) > diag_pub_duration )
+        {
+            diag_array.status.clear();
+            etherdaq->diagnostics(diag_status);
+            diag_array.status.push_back(diag_status);
+            diag_array.header.stamp = ros::Time::now();
+            diag_pub.publish(diag_array);
+            last_diag_pub_time = current_time;
+        }
+
+        ros::spinOnce();
+        pub_rate.sleep();
+    }
+
+    if (etherdaq != NULL) {
+        delete etherdaq;
+    }
+
+    return 0;
 }

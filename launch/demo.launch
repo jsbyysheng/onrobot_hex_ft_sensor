@@ -3,12 +3,7 @@
 		pkg="optoforce_etherdaq_driver"
 		type="etherdaq_node"
 		name="etherdaq_node"
-		args="--address 192.168.100.12 --rate 1000 --filter 4"
-	/>
-	<node
-		pkg="optoforce_etherdaq_driver"
-		type="etherdaq_subscriber"
-		name="etherdaq_subscriber"
+		args="--address 192.168.15.4 --rate 100 --filter 3 --frame_id ft_sensor_link"
 		output="screen"
 	/>
 </launch>
