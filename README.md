@@ -4,4 +4,4 @@ A ros_driver for [onrobot hex-e/hex-h series force torque sensor](https://onrobo
 
 This driver is based on [OptoForce etherdaq_ros](https://github.com/OptoForce/etherdaq_ros) and [official example](https://github.com/jsbyysheng/onrobot_hex_ft_sensor/tree/master/example).
 
-The driver has been tested under Ubuntu 18.04 and ROS melodic.
+The driver has been tested under Ubuntu 20.04 and ROS noetic.
