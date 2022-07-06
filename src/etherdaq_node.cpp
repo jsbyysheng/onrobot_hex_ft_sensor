@@ -74,7 +74,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "etherdaq_node");
     ros::NodeHandle nh;
 
-    float pub_rate_hz;
+    unsigned int pub_rate_hz;
     int filter_hz;
     string address;
     string frame_id;
@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     po::options_description desc("Options");
     desc.add_options()
             ("help", "display help")
-            ("rate", po::value<float>(&pub_rate_hz)->default_value(100.0), "set publish rate and Ethernet DAQ speed (in hertz)")
+            ("rate", po::value<unsigned int>(&pub_rate_hz)->default_value(100), "set publish rate and Ethernet DAQ speed (in hertz)")
             ("filter", po::value<int>(&filter_hz)->default_value(4), "set filtering (0 = No filter; 1 = 500 Hz; 2 = 150 Hz; 3 = 50 Hz; 4 = 15 Hz; 5 = 5 Hz; 6 = 1.5 Hz)")
             ("wrench", "publish older Wrench message type instead of WrenchStamped")
             ("address", po::value<string>(&address), "IP address of EthernetDAQ box")
@@ -130,11 +130,11 @@ int main(int argc, char **argv)
     ros::Subscriber sub = nh.subscribe("ethdaq_zero", 1000, zeroFunction);
     if (publish_wrench)
     {
-        pub = nh.advertise<geometry_msgs::Wrench>(topicName, 100);
+        pub = nh.advertise<geometry_msgs::Wrench>(topicName, 1);
     }
     else
     {
-        pub = nh.advertise<geometry_msgs::WrenchStamped>(topicName, 100);
+        pub = nh.advertise<geometry_msgs::WrenchStamped>(topicName, 1);
     }
     ros::Rate pub_rate(pub_rate_hz);
     geometry_msgs::WrenchStamped data;

@@ -47,7 +47,7 @@
 #include "geometry_msgs/WrenchStamped.h"
 
 #define ONROBOT_HEX_PORT	49152	/* Port the Ethernet DAQ always uses */
-#define SAMPLE_COUNT	    10		/* 10 incoming samples */
+#define SAMPLE_COUNT	    0		/* Infinity incoming samples */
 #define BIASING_ON		    0xFF    /* Biasing on */
 #define BIASING_OFF		    0x00    /* Biasing off */
 #define ZERO_SAMPLE_COUNT   100     /* Count for Average Zero */
